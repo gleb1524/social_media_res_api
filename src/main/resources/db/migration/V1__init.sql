@@ -23,10 +23,19 @@ create table users_roles
     primary key (user_id, role_id)
 );
 
+create table images
+(
+    id   bigserial primary key,
+    data bytea not null
+);
+
 create table posts
 (
     id         bigserial primary key,
-    content    varchar not null,
+    user_id    bigserial,
+    title      varchar   not null,
+    text       varchar   not null,
+    image_id bigserial,
     created_at timestamp default current_timestamp,
     updated_at timestamp default current_timestamp
 );
@@ -45,6 +54,11 @@ create table users_subscriptions
     subscription_id bigserial not null references subscriptions (id),
     primary key (user_id, subscription_id)
 );
+
+ALTER TABLE posts
+    ADD CONSTRAINT FK_USER_ID FOREIGN KEY (user_id) REFERENCES users (id);
+ALTER TABLE posts
+    ADD CONSTRAINT FK_IMAGE_ID FOREIGN KEY (image_id) REFERENCES images (id);
 
 insert into roles (name)
 values ('ROLE_USER'),

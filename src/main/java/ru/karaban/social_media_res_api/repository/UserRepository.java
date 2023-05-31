@@ -8,8 +8,8 @@ import java.util.Optional;
 
 
 public interface UserRepository extends JpaRepository<User, Long> {
-    Optional<User> findByUsername(String username); //TODO подумать над возможностью убрать Options,
-                                                    // если в дальнейшем искать пользователя будем только из секьюрити контекста
-    List<User> findByUsernameIn(List<String> usernames);
+    Optional<User> findByUsername(String username);
+
+    List<User> findAllByUsernameIn(List<String> usernames);
 
 }
