@@ -12,6 +12,7 @@ import ru.karaban.social_media_res_api.entity.Role;
 import ru.karaban.social_media_res_api.entity.User;
 import ru.karaban.social_media_res_api.exeptions.ResourceNotFoundException;
 import ru.karaban.social_media_res_api.repository.UserRepository;
+import ru.karaban.social_media_res_api.utils.MessageUtils;
 
 
 import java.util.Collection;
@@ -40,11 +41,11 @@ public class UserService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = findByUsername(username).orElseThrow(() -> new ResourceNotFoundException("Пользователь с именем " + username + " не найден."));
+        User user = findByUsername(username).orElseThrow(() -> new ResourceNotFoundException(MessageUtils.USER + username + MessageUtils.NOT_FOUND));
         return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), mapRolesToAuthorities(user.getRoles()));
     }
     public UserDetails loadUserById(Long id) throws UsernameNotFoundException {
-        User user = findUserById(id).orElseThrow(() -> new ResourceNotFoundException("Пользователь с id " + id + " не найден."));
+        User user = findUserById(id).orElseThrow(() -> new ResourceNotFoundException(MessageUtils.USER_BY_ID + id + MessageUtils.NOT_FOUND));
         return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), mapRolesToAuthorities(user.getRoles()));
     }
 
@@ -60,6 +61,6 @@ public class UserService implements UserDetailsService {
                 .email(email)
                 .roles(roleUser)
                 .build());
-        log.info(String.format("Save new User(username: %s, email: %s)!", username, email) );
+        log.info(String.format(MessageUtils.USER_NEW, username, email) );
     }
 }

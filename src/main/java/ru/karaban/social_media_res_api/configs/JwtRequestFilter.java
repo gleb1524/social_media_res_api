@@ -7,6 +7,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import ru.karaban.social_media_res_api.utils.GetUsernameJwtTokenUtil;
 import ru.karaban.social_media_res_api.utils.JwtTokenUtil;
 
 import javax.servlet.FilterChain;
@@ -21,16 +22,15 @@ import java.util.stream.Collectors;
 @Slf4j
 public class JwtRequestFilter extends OncePerRequestFilter {
     private final JwtTokenUtil jwtTokenUtil;
+    private final GetUsernameJwtTokenUtil usernameByToken;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String authHeader = request.getHeader("Authorization");
-
-        String username = null;
+        String username = usernameByToken.getUsernameByToken(request);
         String jwt = null;
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+        if (username != null) {
             jwt = authHeader.substring(7);
-            username = jwtTokenUtil.getUsernameFromToken(jwt);
         }
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {

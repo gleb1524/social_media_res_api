@@ -16,6 +16,7 @@ import ru.karaban.social_media_res_api.dto.JwtRequest;
 import ru.karaban.social_media_res_api.dto.JwtResponse;
 import ru.karaban.social_media_res_api.service.UserService;
 import ru.karaban.social_media_res_api.utils.JwtTokenUtil;
+import ru.karaban.social_media_res_api.utils.MessageUtils;
 
 
 @RestController
@@ -31,7 +32,7 @@ public class AuthController {
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword()));
         } catch (BadCredentialsException e) {
-            return new ResponseEntity<>(new AppError(HttpStatus.UNAUTHORIZED.value(), "Incorrect username or password"), HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>(new AppError(HttpStatus.UNAUTHORIZED.value(), MessageUtils.FAIL_AUTH), HttpStatus.UNAUTHORIZED);
         }
         UserDetails userDetails = userService.loadUserByUsername(authRequest.getUsername());
         String token = jwtTokenUtil.generateToken(userDetails);

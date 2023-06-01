@@ -33,9 +33,9 @@ public class Post {
     @Column(name = "text", nullable = false)
     private String text;
 
-    @OneToOne
-    @JoinColumn(name = "image_id")
-    private Image image;
+
+    @Column(name = "image_path")
+    private String imagePath;
 
     @CreationTimestamp
     @Column(name = "created_at")
