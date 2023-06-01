@@ -2,16 +2,23 @@ package ru.karaban.social_media_res_api.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
+import ru.karaban.social_media_res_api.dto.AppError;
+import ru.karaban.social_media_res_api.dto.JwtResponse;
+import ru.karaban.social_media_res_api.dto.UserDto;
 import ru.karaban.social_media_res_api.entity.Role;
 import ru.karaban.social_media_res_api.entity.User;
 import ru.karaban.social_media_res_api.exeptions.ResourceNotFoundException;
 import ru.karaban.social_media_res_api.repository.UserRepository;
+import ru.karaban.social_media_res_api.utils.JwtTokenUtil;
 import ru.karaban.social_media_res_api.utils.MessageUtils;
 
 
@@ -27,16 +34,18 @@ public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
     private final RoleService roleService;
+    private final JwtTokenUtil jwtTokenUtil;
 
     public Optional<User> findByUsername(String username) {
         return userRepository.findByUsername(username);
     }
+
     public Optional<User> findUserById(Long id) {
         return userRepository.findById(id);
     }
 
     public List<User> findAllByUsernameIn(List<String> usernames) {
-       return userRepository.findAllByUsernameIn(usernames);
+        return userRepository.findAllByUsernameIn(usernames);
     }
 
     @Override
@@ -44,6 +53,7 @@ public class UserService implements UserDetailsService {
         User user = findByUsername(username).orElseThrow(() -> new ResourceNotFoundException(MessageUtils.USER + username + MessageUtils.NOT_FOUND));
         return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), mapRolesToAuthorities(user.getRoles()));
     }
+
     public UserDetails loadUserById(Long id) throws UsernameNotFoundException {
         User user = findUserById(id).orElseThrow(() -> new ResourceNotFoundException(MessageUtils.USER_BY_ID + id + MessageUtils.NOT_FOUND));
         return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), mapRolesToAuthorities(user.getRoles()));
@@ -53,14 +63,22 @@ public class UserService implements UserDetailsService {
         return roles.stream().map(role -> new SimpleGrantedAuthority(role.getName())).collect(Collectors.toList());
     }
 
-    public void saveUser(String username, String password, String email) {
+    public ResponseEntity<?> saveUser(UserDto userDto) {
+        if (userDto.getUsername().isEmpty() || userDto.getPassword().isEmpty() || userDto.getEmail().isEmpty()) {
+            return new ResponseEntity<>(new AppError(HttpStatus.BAD_REQUEST.value(), MessageUtils.REG_EMPTY), HttpStatus.BAD_REQUEST);
+        }
+        String salt = BCrypt.gensalt();
+        String password = BCrypt.hashpw(userDto.getPassword(), salt);
         List<Role> roleUser = roleService.findAllByName("ROLE_USER");
         userRepository.save(User.builder()
-                .username(username)
+                .username(userDto.getUsername())
                 .password(password)
-                .email(email)
+                .email(userDto.getEmail())
                 .roles(roleUser)
                 .build());
-        log.info(String.format(MessageUtils.USER_NEW, username, email) );
+        UserDetails userDetails = loadUserByUsername(userDto.getUsername());
+        String token = jwtTokenUtil.generateToken(userDetails);
+        log.info(String.format(MessageUtils.USER_NEW, userDto.getUsername(), userDto.getEmail()));
+        return ResponseEntity.ok(new JwtResponse(token));
     }
 }

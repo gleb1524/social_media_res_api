@@ -20,9 +20,6 @@ public class ImageService {
 
     public String mediaProcessing(MultipartFile file, String username) {
         try {
-            if (file.isEmpty()) {
-                return MessageUtils.FILE_EMPTY;
-            }
             byte[] bytes = file.getBytes();
             String accountHash = mediaProcessingService.getAccountHash(username);
             String filename = file.getOriginalFilename();
