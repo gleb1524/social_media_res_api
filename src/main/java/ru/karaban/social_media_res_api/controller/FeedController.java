@@ -9,9 +9,10 @@ import ru.karaban.social_media_res_api.service.ImageService;
 import ru.karaban.social_media_res_api.utils.GetUsernameJwtTokenUtil;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 
 @RestController
-@RequestMapping("/api/v1/content")
+@RequestMapping("/api/v1/content/post")
 @RequiredArgsConstructor
 public class FeedController {
 
@@ -19,10 +20,18 @@ public class FeedController {
     private final ImageService imageService;
     private final GetUsernameJwtTokenUtil usernameByToken;
 
-    @PostMapping("/post")
-    public ResponseEntity<String> savePost(@ModelAttribute PostDto postDto, HttpServletRequest request) {
+    @PostMapping()
+    public ResponseEntity<String> savePost(@Valid @ModelAttribute PostDto postDto, HttpServletRequest request) {
 
         String username = usernameByToken.getUsernameByToken(request);
-        return feedService.savePost(postDto, username);
+        String response = feedService.savePost(postDto, username);
+        return ResponseEntity.ok(response);
+    }
+
+    public ResponseEntity<String> deletePost(@Valid @ModelAttribute PostDto postDto, HttpServletRequest request) {
+
+        String username = usernameByToken.getUsernameByToken(request);
+        String response = feedService.deletePost(postDto, username);
+        return ResponseEntity.ok(response);
     }
 }

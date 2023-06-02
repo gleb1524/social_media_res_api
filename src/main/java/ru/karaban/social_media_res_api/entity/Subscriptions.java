@@ -28,9 +28,6 @@ public class Subscriptions {
     @JoinColumn(name = "friend_id")
     private User friend;
 
-    @Column(name = "status")
-    private boolean status;
-
     @CreationTimestamp
     @Column(name = "created_at")
     private LocalDateTime createdAt;

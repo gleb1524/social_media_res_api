@@ -8,37 +8,28 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "posts")
+@Table(name = "friendships")
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Post {
+public class Friendship {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;
+    @OneToOne
+    @JoinColumn(name = "sender_id")
+    private User sender;
 
-    @Column(name = "title")
-    @NotBlank(message = "Title is mandatory")
-    private String title;
-
-    @Column(name = "text")
-    @NotBlank(message = "Text is mandatory")
-    private String text;
-
-
-    @Column(name = "image_path")
-    private String imagePath;
+    @OneToOne
+    @JoinColumn(name = "recipient_id")
+    private User recipient;
 
     @CreationTimestamp
     @Column(name = "created_at")

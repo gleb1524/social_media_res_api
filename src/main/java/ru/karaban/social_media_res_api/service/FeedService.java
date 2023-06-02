@@ -2,7 +2,6 @@ package ru.karaban.social_media_res_api.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.karaban.social_media_res_api.dto.PostDto;
@@ -22,13 +21,11 @@ public class FeedService {
     private final ImageService imageService;
 
     @Transactional
-    public ResponseEntity<String> savePost(PostDto postDto, String username) {
-        if (postDto.getTitle().isEmpty() || postDto.getText().isEmpty() || postDto.getFile().isEmpty()) {
-            return ResponseEntity.badRequest().body(MessageUtils.BAD_MEDIA_REQUEST);
-        }
+    public String savePost(PostDto postDto, String username) {
+
         String response = imageService.mediaProcessing(postDto.getFile(), username);
         if (response.startsWith(MessageUtils.FAILED)) {
-            return ResponseEntity.badRequest().body(response);
+            throw new ResourceNotFoundException(response);
         }
         User user = getCurrentUser(username);
         postRepository.save(Post.builder()
@@ -37,7 +34,7 @@ public class FeedService {
                 .imagePath(response)
                 .user(user)
                 .build());
-        return ResponseEntity.ok(MessageUtils.POST_CREATED);
+        return MessageUtils.POST_CREATED;
     }
 
 //    public List<PostDto> getFeed() {
@@ -59,5 +56,15 @@ public class FeedService {
            throw new ResourceNotFoundException(MessageUtils.USER + username + MessageUtils.NOT_FOUND);
         }
     }
+
+//    public String deletePost(PostDto postDto, String username) {
+//        User user = getCurrentUser(username);
+//        postRepository.delete(Post.builder()
+//                .title(postDto.getTitle())
+//                .text(postDto.getText())
+//                .imagePath(response)
+//                .user(user)
+//                .build());
+//    }
 }
 

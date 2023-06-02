@@ -36,52 +36,30 @@ public class UserService implements UserDetailsService { //TODO добавить
     private final RoleService roleService;
     private final JwtTokenUtil jwtTokenUtil;
 
-    public ResponseEntity<?> responseUserByUsername(String username) {
-        if(isUserExistsByUsername(username)){
-            return ResponseEntity.ok().build();
-        }
-        return ResponseEntity.badRequest().body(MessageUtils.USER + username + MessageUtils.NOT_FOUND);
-    }
-
     public Optional<User> findUserById(Long id) {
         return userRepository.findById(id);
     }
 
-    public List<User> findAllByUsernameIn(List<String> usernames) {
-        return userRepository.findAllByUsernameIn(usernames);
-    }
-
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        try{
+        try {
             User user = userRepository.findByUsername(username);
             return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), mapRolesToAuthorities(user.getRoles()));
-        }catch (Exception e) {
-           throw new ResourceNotFoundException(MessageUtils.USER + username + MessageUtils.NOT_FOUND);
+        } catch (Exception e) {
+            throw new ResourceNotFoundException(MessageUtils.USER + username + MessageUtils.NOT_FOUND);
         }
-    }
-
-    public UserDetails loadUserById(Long id) throws UsernameNotFoundException {
-        User user = findUserById(id).orElseThrow(() -> new ResourceNotFoundException(MessageUtils.USER_BY_ID + id + MessageUtils.NOT_FOUND));
-        return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), mapRolesToAuthorities(user.getRoles()));
     }
 
     private Collection<? extends GrantedAuthority> mapRolesToAuthorities(Collection<Role> roles) {
         return roles.stream().map(role -> new SimpleGrantedAuthority(role.getName())).collect(Collectors.toList());
     }
 
-    public boolean isUserExistsByUsername(String username) {
-        return userRepository.existsByUsername(username);
-    }
-
     public User findUserByUsername(String username) {
         return userRepository.findByUsername(username);
     }
 
-    public ResponseEntity<?> saveUser(UserDto userDto) {
-        if (userDto.getUsername().isEmpty() || userDto.getPassword().isEmpty() || userDto.getEmail().isEmpty()) {
-            return new ResponseEntity<>(new AppError(HttpStatus.BAD_REQUEST.value(), MessageUtils.REG_EMPTY), HttpStatus.BAD_REQUEST);
-        }
+    public String saveUser(UserDto userDto) {
+
         String salt = BCrypt.gensalt();
         String password = BCrypt.hashpw(userDto.getPassword(), salt);
         List<Role> roleUser = roleService.findAllByName("ROLE_USER");
@@ -94,6 +72,6 @@ public class UserService implements UserDetailsService { //TODO добавить
         UserDetails userDetails = loadUserByUsername(userDto.getUsername());
         String token = jwtTokenUtil.generateToken(userDetails);
         log.info(String.format(MessageUtils.USER_NEW, userDto.getUsername(), userDto.getEmail()));
-        return ResponseEntity.ok(new JwtResponse(token));
+        return token;
     }
 }

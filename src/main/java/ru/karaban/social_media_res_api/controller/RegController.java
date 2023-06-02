@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.karaban.social_media_res_api.dto.UserDto;
 import ru.karaban.social_media_res_api.service.UserService;
 
+import javax.validation.Valid;
+
 
 @RestController
 @RequestMapping("/reg")
@@ -19,8 +21,9 @@ public class RegController {
     private final UserService userService;
 
     @PostMapping()
-    public ResponseEntity<?> registration(@RequestBody UserDto userDto) {
+    public ResponseEntity<?> registration(@Valid @RequestBody UserDto userDto) {
 
-        return userService.saveUser(userDto);
+        String response = userService.saveUser(userDto);
+        return ResponseEntity.ok(response);
     }
 }

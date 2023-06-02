@@ -2,25 +2,18 @@ package ru.karaban.social_media_res_api.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
-import ru.karaban.social_media_res_api.Model.SubscribeRequest;
+import ru.karaban.social_media_res_api.dto.ResponseFriendship;
 import ru.karaban.social_media_res_api.entity.Subscriptions;
 import ru.karaban.social_media_res_api.entity.User;
 import ru.karaban.social_media_res_api.exeptions.ResourceNotFoundException;
 import ru.karaban.social_media_res_api.repository.SubscriptionsRepository;
 import ru.karaban.social_media_res_api.utils.MessageUtils;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -31,10 +24,7 @@ public class SubscriptionsService {
     private final SubscriptionsRepository repository;
     private final UserService userService;
 
-    @Value("${friendship_request}")
-    private String url;
-
-    public ResponseEntity<?> subscribe(String username, String friendName) {
+    public String subscribe(String username, String friendName) {
 
         try {
             User user = userService.findUserByUsername(username);
@@ -42,26 +32,34 @@ public class SubscriptionsService {
             repository.save(Subscriptions.builder()
                     .user(user)
                     .friend(friend)
-                    .status(false)
                     .build());
-            subRequest(username, friendName);
-            return ResponseEntity.ok(String.format(MessageUtils.SUBSCRIBE, friendName));
+            return String.format(MessageUtils.SUBSCRIBE, friendName);
         } catch (Exception e) {
             log.error(MessageUtils.USER + friendName + MessageUtils.NOT_FOUND);
-            return ResponseEntity.badRequest().body(MessageUtils.USER + friendName + MessageUtils.NOT_FOUND);
+            return MessageUtils.USER + friendName + MessageUtils.NOT_FOUND;
         }
     }
 
-    private void subRequest(String username, String friendName) {
-        WebClient webClient = WebClient.create();
-        SubscribeRequest request = new SubscribeRequest();
-        request.setUsername(username);
-        webClient.post()
-                .uri(url + friendName)
-                .bodyValue(request)
-                .retrieve()
-                .bodyToMono(String.class);
+    public ResponseFriendship getSubscribes(String username) {
+
+        try {
+            User user = userService.findUserByUsername(username);
+            List<Subscriptions> subscriptions = repository.findAllByFriend(user);
+            ResponseFriendship response = new ResponseFriendship();
+            List<String> subscribers = subscriptions.stream()
+                    .map(Subscriptions::getUser)
+                    .map(User::getUsername).collect(Collectors.toList());
+            response.setFriendship(subscribers);
+            response.setUsername(username);
+            log.info("Return all friendship " + username);
+            return response;
+        } catch (Exception e) {
+            log.error(MessageUtils.USER + username + MessageUtils.NOT_FOUND);
+            throw  new ResourceNotFoundException(e.getMessage());
+        }
     }
+
+
 
 //    public ResponseEntity<?> friendshipRequest(User user, User friend) {
 //

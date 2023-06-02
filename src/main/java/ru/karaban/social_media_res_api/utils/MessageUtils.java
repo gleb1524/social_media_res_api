@@ -18,4 +18,9 @@ public interface MessageUtils {
     String ACCEPT = "Accepted friendship";
     String FRIENDSHIP_REJ = "Friendship request rejected";
     String BAD_RESPONSE = "Response is empty";
+    String BAD_REQUEST = "Bad request";
+    String REJECT_FRIENDSHIP = "Friendship from the user %s was successfully rejected";
+    String OK_FRIENDSHIP = "Friendship to user %s send";
+    String USERNAME_EMPTY = "Username is empty";
+    String FRIEND_EMPTY = "Friend is empty";
 }
