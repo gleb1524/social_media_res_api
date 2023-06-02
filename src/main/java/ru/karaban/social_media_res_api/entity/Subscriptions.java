@@ -1,6 +1,6 @@
 package ru.karaban.social_media_res_api.entity;
 
-import lombok.Data;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -10,6 +10,9 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "subscriptions")
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Subscriptions {
 
     @Id
@@ -17,8 +20,16 @@ public class Subscriptions {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "subscribe_username", nullable = false)
-    private String subscribe_username;
+    @OneToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    @OneToOne
+    @JoinColumn(name = "friend_id")
+    private User friend;
+
+    @Column(name = "status")
+    private boolean status;
 
     @CreationTimestamp
     @Column(name = "created_at")

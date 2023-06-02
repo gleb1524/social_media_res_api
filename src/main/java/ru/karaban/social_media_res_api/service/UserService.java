@@ -30,14 +30,17 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class UserService implements UserDetailsService {
+public class UserService implements UserDetailsService { //TODO добавить проверку на повторяющейся email или username
 
     private final UserRepository userRepository;
     private final RoleService roleService;
     private final JwtTokenUtil jwtTokenUtil;
 
-    public Optional<User> findByUsername(String username) {
-        return userRepository.findByUsername(username);
+    public ResponseEntity<?> responseUserByUsername(String username) {
+        if(isUserExistsByUsername(username)){
+            return ResponseEntity.ok().build();
+        }
+        return ResponseEntity.badRequest().body(MessageUtils.USER + username + MessageUtils.NOT_FOUND);
     }
 
     public Optional<User> findUserById(Long id) {
@@ -50,8 +53,12 @@ public class UserService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = findByUsername(username).orElseThrow(() -> new ResourceNotFoundException(MessageUtils.USER + username + MessageUtils.NOT_FOUND));
-        return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), mapRolesToAuthorities(user.getRoles()));
+        try{
+            User user = userRepository.findByUsername(username);
+            return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), mapRolesToAuthorities(user.getRoles()));
+        }catch (Exception e) {
+           throw new ResourceNotFoundException(MessageUtils.USER + username + MessageUtils.NOT_FOUND);
+        }
     }
 
     public UserDetails loadUserById(Long id) throws UsernameNotFoundException {
@@ -61,6 +68,14 @@ public class UserService implements UserDetailsService {
 
     private Collection<? extends GrantedAuthority> mapRolesToAuthorities(Collection<Role> roles) {
         return roles.stream().map(role -> new SimpleGrantedAuthority(role.getName())).collect(Collectors.toList());
+    }
+
+    public boolean isUserExistsByUsername(String username) {
+        return userRepository.existsByUsername(username);
+    }
+
+    public User findUserByUsername(String username) {
+        return userRepository.findByUsername(username);
     }
 
     public ResponseEntity<?> saveUser(UserDto userDto) {

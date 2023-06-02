@@ -1,9 +1,6 @@
 package ru.karaban.social_media_res_api.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -35,11 +32,11 @@ public class User {
     @Column(name = "password", unique = true, nullable = false)
     private String password;
 
-    @ManyToMany
-    @JoinTable(name = "users_subscriptions",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "subscription_id"))
-    private List<Subscriptions> subscriptions;
+//    @ManyToMany
+//    @JoinTable(name = "users_subscriptions",
+//            joinColumns = @JoinColumn(name = "user_id"),
+//            inverseJoinColumns = @JoinColumn(name = "subscription_id"))
+//    private List<Subscriptions> subscriptions;
 
     @ManyToMany
     @JoinTable(name = "users_roles",
