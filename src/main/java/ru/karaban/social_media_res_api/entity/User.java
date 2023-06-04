@@ -9,7 +9,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 import java.util.Collection;
-import java.util.List;
+
 
 
 @Entity
@@ -25,19 +25,16 @@ public class User {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "username", unique = true, nullable = false)
+    @Column(name = "username")
     @NotBlank(message = "Username is mandatory")
-    @UniqueElements(message = "Username must be unique")
     private String username;
 
-    @Column(name = "email", unique = true, nullable = false)
+    @Column(name = "email")
     @NotBlank(message = "Email is mandatory")
-    @UniqueElements(message = "Email must be unique")
     private String email;
 
-    @Column(name = "password", unique = true, nullable = false)
+    @Column(name = "password")
     @NotBlank(message = "Password is mandatory")
-    @UniqueElements(message = "Password must be unique")
     private String password;
 
     @ManyToMany
@@ -53,4 +50,6 @@ public class User {
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+
 }

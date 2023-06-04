@@ -12,6 +12,7 @@ public interface SubscriptionsRepository extends JpaRepository<Subscriptions, Lo
 
     Optional<Subscriptions> findByUser(User user);
     List<Subscriptions> findAllByFriend(User user);
+    List<Subscriptions> findAllByUser(User user);
 
     @Query(value = "select * from subscriptions sub join " +
                    "subscriptions sub2 ON sub.friend_id = sub2.user_id" +
@@ -22,5 +23,5 @@ public interface SubscriptionsRepository extends JpaRepository<Subscriptions, Lo
                    "subscriptions sub2 ON sub.friend_id = sub2.user_id" +
                    " where sub.user_id = ?1 and sub.friend_id = ?2",
             nativeQuery = true)
-    void deleteSubscriptionsByByFriends(Long myId, Long friendId);
+    void deleteSubscriptionsByFriends(Long myId, Long friendId);
 }

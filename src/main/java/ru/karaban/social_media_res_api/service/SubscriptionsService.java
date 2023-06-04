@@ -12,6 +12,7 @@ import ru.karaban.social_media_res_api.exeptions.ResourceNotFoundException;
 import ru.karaban.social_media_res_api.repository.SubscriptionsRepository;
 import ru.karaban.social_media_res_api.utils.MessageUtils;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -40,26 +41,34 @@ public class SubscriptionsService {
         }
     }
 
-    public ResponseFriendship getSubscribes(String username) {
+    public ResponseFriendship getSubscribes(String subscriberName) {
 
-        try {
-            User user = userService.findUserByUsername(username);
+            User user = getUserByUsername(subscriberName);
             List<Subscriptions> subscriptions = repository.findAllByFriend(user);
             ResponseFriendship response = new ResponseFriendship();
             List<String> subscribers = subscriptions.stream()
                     .map(Subscriptions::getUser)
                     .map(User::getUsername).collect(Collectors.toList());
             response.setFriendship(subscribers);
-            response.setUsername(username);
-            log.info("Return all friendship " + username);
+            response.setUsername(subscriberName);
+            log.info("Return all friendship " + subscriberName);
             return response;
-        } catch (Exception e) {
-            log.error(MessageUtils.USER + username + MessageUtils.NOT_FOUND);
-            throw  new ResourceNotFoundException(e.getMessage());
-        }
+
     }
 
+    public List<Subscriptions> getMySubscriptions(String username) {
+        User user = getUserByUsername(username);
+        return repository.findAllByUser(user);
+    }
 
+    private User getUserByUsername(String username) {
+        try {
+            return userService.findUserByUsername(username);
+        } catch (Exception e) {
+            log.error(String.format("%s%s or %s", MessageUtils.USER, MessageUtils.NOT_FOUND, Arrays.toString(e.getStackTrace())));
+            throw new ResourceNotFoundException(MessageUtils.USER + username + MessageUtils.NOT_FOUND);
+        }
+    }
 
 //    public ResponseEntity<?> friendshipRequest(User user, User friend) {
 //

@@ -1,14 +1,18 @@
 package ru.karaban.social_media_res_api.repository;
 
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import ru.karaban.social_media_res_api.entity.Post;
 import ru.karaban.social_media_res_api.entity.User;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
 
-    List<Post> findByUserInOrderByCreatedAtDesc(List<User> users);
+    Page<Post> findAllByIdIn(List<Long> idList, Pageable paging);
 
+    Optional<Post> getPostById(Long id);
 }

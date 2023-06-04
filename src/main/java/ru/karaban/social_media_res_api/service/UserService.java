@@ -11,8 +11,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
-import ru.karaban.social_media_res_api.dto.AppError;
-import ru.karaban.social_media_res_api.dto.JwtResponse;
 import ru.karaban.social_media_res_api.dto.UserDto;
 import ru.karaban.social_media_res_api.entity.Role;
 import ru.karaban.social_media_res_api.entity.User;

@@ -38,7 +38,7 @@ public class FriendshipService {
         return String.format(MessageUtils.OK_FRIENDSHIP, friendName);
     }
 
-    public RequestFriendship findAllByUser(String username) {
+    public ResponseFriendship findAllByUser(String username) {
         if (username.isEmpty()) {
             throw new ResourceNotFoundException(MessageUtils.USERNAME_EMPTY);
         }

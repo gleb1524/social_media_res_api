@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.karaban.social_media_res_api.dto.JwtRequest;
-import ru.karaban.social_media_res_api.dto.JwtResponse;
+import ru.karaban.social_media_res_api.model.JwtRequest;
+import ru.karaban.social_media_res_api.model.JwtResponse;
 import ru.karaban.social_media_res_api.service.UserService;
 import ru.karaban.social_media_res_api.utils.JwtTokenUtil;
 
