@@ -2,8 +2,6 @@ package ru.karaban.social_media_res_api.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,21 +20,16 @@ import ru.karaban.social_media_res_api.utils.MessageUtils;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class UserService implements UserDetailsService { //TODO добавить проверку на повторяющейся email или username
+public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
     private final RoleService roleService;
     private final JwtTokenUtil jwtTokenUtil;
-
-    public Optional<User> findUserById(Long id) {
-        return userRepository.findById(id);
-    }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -57,7 +50,10 @@ public class UserService implements UserDetailsService { //TODO добавить
     }
 
     public String saveUser(UserDto userDto) {
-
+        if(isUserDataUniq(userDto)){
+            log.error(String.format(MessageUtils.REG_NOT_UNIQUE, userDto.getUsername(), userDto.getEmail()));
+            throw new ResourceNotFoundException(String.format(MessageUtils.REG_NOT_UNIQUE, userDto.getUsername(), userDto.getEmail()));
+        }
         String salt = BCrypt.gensalt();
         String password = BCrypt.hashpw(userDto.getPassword(), salt);
         List<Role> roleUser = roleService.findAllByName("ROLE_USER");
@@ -71,5 +67,9 @@ public class UserService implements UserDetailsService { //TODO добавить
         String token = jwtTokenUtil.generateToken(userDetails);
         log.info(String.format(MessageUtils.USER_NEW, userDto.getUsername(), userDto.getEmail()));
         return token;
+    }
+
+    private boolean isUserDataUniq (UserDto userDto) {
+        return userRepository.existsByUsernameOrEmail(userDto.getUsername(), userDto.getEmail());
     }
 }

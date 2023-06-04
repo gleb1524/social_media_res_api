@@ -1,4 +1,4 @@
-package ru.karaban.social_media_res_api.dto;
+package ru.karaban.social_media_res_api.model;
 
 import lombok.Getter;
 import lombok.Setter;

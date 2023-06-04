@@ -47,7 +47,7 @@ create table subscriptions
 create table chats
 (
     id           bigserial primary key unique,
-    text         text not null,
+    chat_path    varchar not null,
     sender_id    bigserial references users (id),
     recipient_id bigserial references users (id),
     created_at   timestamp default current_timestamp,

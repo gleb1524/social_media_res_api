@@ -2,10 +2,8 @@ package ru.karaban.social_media_res_api.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.MethodArgumentNotValidException;
-import ru.karaban.social_media_res_api.dto.ResponseFriendship;
+import ru.karaban.social_media_res_api.model.ResponseFriendship;
 import ru.karaban.social_media_res_api.entity.Friendship;
 import ru.karaban.social_media_res_api.entity.User;
 import ru.karaban.social_media_res_api.exeptions.ResourceNotFoundException;
@@ -15,7 +13,6 @@ import ru.karaban.social_media_res_api.utils.MessageUtils;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -64,8 +61,10 @@ public class FriendshipService {
             throw new ResourceNotFoundException(MessageUtils.BAD_REQUEST);
         }
         if (answer) {
-            return subscriptionsService.subscribe(username, friendName);
+            log.debug(subscriptionsService.subscribe(username, friendName) + " " + MessageUtils.ACCEPT);
+            return subscriptionsService.subscribe(username, friendName) + " " + MessageUtils.ACCEPT;
         }
+        log.debug(cancelFriendship(username, friendName));
         return cancelFriendship(username, friendName);
     }
 

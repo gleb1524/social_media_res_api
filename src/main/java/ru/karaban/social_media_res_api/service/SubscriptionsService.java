@@ -2,10 +2,8 @@ package ru.karaban.social_media_res_api.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import ru.karaban.social_media_res_api.dto.ResponseFriendship;
+import ru.karaban.social_media_res_api.model.ResponseFriendship;
 import ru.karaban.social_media_res_api.entity.Subscriptions;
 import ru.karaban.social_media_res_api.entity.User;
 import ru.karaban.social_media_res_api.exeptions.ResourceNotFoundException;
@@ -27,38 +25,56 @@ public class SubscriptionsService {
 
     public String subscribe(String username, String friendName) {
 
-        try {
-            User user = userService.findUserByUsername(username);
-            User friend = userService.findUserByUsername(friendName);
-            repository.save(Subscriptions.builder()
-                    .user(user)
-                    .friend(friend)
-                    .build());
-            return String.format(MessageUtils.SUBSCRIBE, friendName);
-        } catch (Exception e) {
-            log.error(MessageUtils.USER + friendName + MessageUtils.NOT_FOUND);
-            return MessageUtils.USER + friendName + MessageUtils.NOT_FOUND;
-        }
+        User user = getUserByUsername(username);
+        User friend = getUserByUsername(friendName);
+        repository.save(Subscriptions.builder()
+                .user(user)
+                .friend(friend)
+                .build());
+        return String.format(MessageUtils.SUBSCRIBE, friendName);
+    }
+
+    public String unsubscribe(String username, String subscribeName) {
+
+        User user = getUserByUsername(username);
+        User friend = getUserByUsername(subscribeName);
+        repository.deleteSubscriptionsByFriends(user.getId(), friend.getId());
+        return String.format(MessageUtils.UNSUBSCRIBE, subscribeName);
     }
 
     public ResponseFriendship getSubscribes(String subscriberName) {
 
-            User user = getUserByUsername(subscriberName);
-            List<Subscriptions> subscriptions = repository.findAllByFriend(user);
-            ResponseFriendship response = new ResponseFriendship();
-            List<String> subscribers = subscriptions.stream()
-                    .map(Subscriptions::getUser)
-                    .map(User::getUsername).collect(Collectors.toList());
-            response.setFriendship(subscribers);
-            response.setUsername(subscriberName);
-            log.info("Return all friendship " + subscriberName);
-            return response;
-
+        User user = getUserByUsername(subscriberName);
+        List<Subscriptions> subscriptions = repository.findAllByFriend(user);
+        ResponseFriendship response = new ResponseFriendship();
+        List<String> subscribers = subscriptions.stream()
+                .map(Subscriptions::getUser)
+                .map(User::getUsername).collect(Collectors.toList());
+        response.setFriendship(subscribers);
+        response.setUsername(subscriberName);
+        log.info("Return all friendship " + subscriberName);
+        return response;
     }
 
     public List<Subscriptions> getMySubscriptions(String username) {
         User user = getUserByUsername(username);
         return repository.findAllByUser(user);
+    }
+
+    private List<String> getFriends(String username) {
+
+        User user = getUserByUsername(username);
+        Long id = user.getId();
+        List<Subscriptions> subscriptions = repository.findAllFriends(id);
+        List<String> friendsName = subscriptions.stream()
+                .map(Subscriptions::getFriend)
+                .map(User::getUsername).collect(Collectors.toList());
+        return friendsName;
+    }
+
+    public boolean isFriend(String username, String friendName) {
+
+       return getFriends(username).contains(friendName);
     }
 
     private User getUserByUsername(String username) {
@@ -70,20 +86,4 @@ public class SubscriptionsService {
         }
     }
 
-//    public ResponseEntity<?> friendshipRequest(User user, User friend) {
-//
-//        Subscriptions subscriptions = repository.findByUser(user)
-//                .orElseThrow(() -> new ResourceNotFoundException(MessageUtils.USER + user.getUsername() + MessageUtils.NOT_FOUND));
-//        if (request != null && request.equals(MessageUtils.ACCEPT)) {
-//            subscriptions.setStatus(true);
-//            repository.save(subscriptions);
-//            log.debug(MessageUtils.ACCEPT + " " + friend.getUsername());
-//            return ResponseEntity.ok(MessageUtils.ACCEPT);
-//        } else if (request != null) {
-//            log.debug(MessageUtils.FRIENDSHIP_REJ + " " + friend.getUsername());
-//            return ResponseEntity.badRequest().body(MessageUtils.FRIENDSHIP_REJ);
-//        }
-//        log.error(MessageUtils.BAD_RESPONSE);
-//        return ResponseEntity.badRequest().body(MessageUtils.FAILED);
-//    }
 }

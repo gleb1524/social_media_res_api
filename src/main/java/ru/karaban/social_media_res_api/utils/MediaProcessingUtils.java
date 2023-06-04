@@ -3,7 +3,7 @@ package ru.karaban.social_media_res_api.utils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
+import ru.karaban.social_media_res_api.exeptions.ResourceNotFoundException;
 
 import javax.xml.bind.DatatypeConverter;
 import java.io.File;
@@ -29,8 +29,8 @@ public class MediaProcessingUtils {
         }
         catch (Exception ex) {
             ex.printStackTrace();
+            throw new ResourceNotFoundException(ex.getMessage());
         }
-        return null;
     }
 
     private static String bytesToHex(byte[] hash) {

@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.karaban.social_media_res_api.dto.ResponseFriendship;
+import ru.karaban.social_media_res_api.model.ResponseFriendship;
 import ru.karaban.social_media_res_api.service.SubscriptionsService;
 import ru.karaban.social_media_res_api.utils.GetUsernameJwtTokenUtil;
 
@@ -24,6 +24,14 @@ public class SubscriptionsController {
 
         String username = usernameByToken.getUsernameByToken(request);
         String response = subscriptionsService.subscribe(username, subscribe_name);
+        return ResponseEntity.ok(response);
+
+    }
+    @DeleteMapping("/{subscribe_name}")
+    public ResponseEntity<?> unsubscribe(@PathVariable String subscribe_name, HttpServletRequest request) {
+
+        String username = usernameByToken.getUsernameByToken(request);
+        String response = subscriptionsService.unsubscribe(username, subscribe_name);
         return ResponseEntity.ok(response);
 
     }

@@ -16,7 +16,6 @@ import ru.karaban.social_media_res_api.exeptions.ResourceNotFoundException;
 import ru.karaban.social_media_res_api.model.ResponsePost;
 import ru.karaban.social_media_res_api.repository.PostRepository;
 import ru.karaban.social_media_res_api.utils.MessageUtils;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,63 +37,79 @@ public class FeedService {
             throw new ResourceNotFoundException(response);
         }
         User user = getCurrentUser(username);
+        if (postDto.getId() != null) {
+            postRepository.save(Post.builder()
+                    .id(postDto.getId())
+                    .title(postDto.getTitle())
+                    .text(postDto.getText())
+                    .imagePath(response)
+                    .user(user)
+                    .build());
+            log.debug(MessageUtils.POST_UPDATED + "by id: " + postDto.getId());
+            return MessageUtils.POST_UPDATED + "by id: " + postDto.getId();
+        }
         postRepository.save(Post.builder()
                 .title(postDto.getTitle())
                 .text(postDto.getText())
                 .imagePath(response)
                 .user(user)
                 .build());
+        log.debug(MessageUtils.POST_CREATED);
         return MessageUtils.POST_CREATED;
     }
 
-//    public List<PostDto> getFeed() {
-//        User currentUser = getCurrentUser();
-//        List<String> subscriptionsUsername = currentUser.getSubscriptions()
-//                .stream().map(Subscriptions::getSubscribe_username).collect(Collectors.toList());
-//        List<User> subscriptions = userService.findAllByUsernameIn(subscriptionsUsername);
-//        subscriptions.add(currentUser);
-//        return postRepository.findByUserInOrderByCreatedAtDesc(subscriptions)
-//                .stream()
-//                .map(converter::entityToDtoPost)
-//                .collect(Collectors.toList());
-//    }
 
     private User getCurrentUser(String username) {
         try {
             return userService.findUserByUsername(username);
         } catch (Exception e) {
-            throw new ResourceNotFoundException(MessageUtils.USER + username + MessageUtils.NOT_FOUND);
+            throw new ResourceNotFoundException(MessageUtils.USER + username + MessageUtils.NOT_FOUND + " or " + e.getMessage());
         }
     }
 
     public List<ResponsePost> getFeed(Integer pageNo, Integer pageSize, String sortBy, String username) {
 
-        Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by(sortBy));
+        Pageable paging = PageRequest.of(pageNo, pageSize, Sort.Direction.DESC, sortBy);
         List<Subscriptions> mySubscriptions = subscriptionsService.getMySubscriptions(username);
         List<Long> subscriptionsId = mySubscriptions.stream().map(Subscriptions::getId).collect(Collectors.toList());
         Page<Post> pagedResult = postRepository.findAllByIdIn(subscriptionsId, paging);
 
         if (pagedResult.hasContent()) {
             List<Post> content = pagedResult.getContent();
+            log.debug(content.stream().map(Post::getId).collect(Collectors.toList()).toString());
             return content.stream().map(post -> ResponsePost.builder()
                     .id(post.getId())
                     .title(post.getTitle())
                     .text(post.getText())
                     .build()).collect(Collectors.toList());
         } else {
+            log.error("Feed by user " + username + MessageUtils.NOT_FOUND);
             throw new ResourceNotFoundException(MessageUtils.NOT_FOUND);
         }
     }
 
 
-//    public String deletePost(PostDto postDto, String username) {
-//        User user = getCurrentUser(username);
-//        postRepository.delete(Post.builder()
-//                .title(postDto.getTitle())
-//                .text(postDto.getText())
-//                .imagePath(response)
-//                .user(user)
-//                .build());
-//    }
+    public String deletePost(PostDto postDto, String username) {
+
+        try {
+            User user = getCurrentUser(username);
+            if (imageService.deleteImg(postDto.getId(), user)) {
+                postRepository.delete(Post.builder()
+                        .id(postDto.getId())
+                        .title(postDto.getTitle())
+                        .text(postDto.getText())
+                        .user(user)
+                        .build());
+                log.info(MessageUtils.DELETE_OK + " post by id: " + postDto.getId());
+                return MessageUtils.DELETE_OK;
+            } else {
+                log.info(MessageUtils.DELETE_BAD + " post by id: " + postDto.getId());
+                return MessageUtils.DELETE_BAD;
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new ResourceNotFoundException(MessageUtils.NOT_FOUND + " or " + e.getMessage());
+        }
+    }
 }
 

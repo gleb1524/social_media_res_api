@@ -12,8 +12,6 @@ import ru.karaban.social_media_res_api.model.JwtResponse;
 import ru.karaban.social_media_res_api.service.UserService;
 import ru.karaban.social_media_res_api.utils.JwtTokenUtil;
 
-
-
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
