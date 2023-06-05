@@ -1,5 +1,6 @@
 package ru.karaban.social_media_res_api.controller;
 
+import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +21,7 @@ public class MessageController {
     private final GetUsernameJwtTokenUtil usernameByToken;
     private final ChatService chatService;
 
+    @ApiOperation(value = "Get all chats", response = List.class)
     @GetMapping()
     public ResponseEntity<?> getMessages(HttpServletRequest request) {
 
@@ -28,6 +30,7 @@ public class MessageController {
         return ResponseEntity.ok(chats);
     }
 
+    @ApiOperation(value = "Send message", response = String.class)
     @PostMapping()
     public ResponseEntity<?> sendMessage(HttpServletRequest request, @Valid @RequestBody SendMessage message) {
 

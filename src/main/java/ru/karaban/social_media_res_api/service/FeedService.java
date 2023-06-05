@@ -88,7 +88,7 @@ public class FeedService {
         }
     }
 
-
+@Transactional
     public String deletePost(PostDto postDto, String username) {
 
         try {

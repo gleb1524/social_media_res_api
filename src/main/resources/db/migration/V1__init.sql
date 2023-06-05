@@ -88,4 +88,13 @@ insert into roles (name)
 values ('ROLE_USER'),
        ('ROLE_ADMIN');
 
+insert into users(id, username, email, password) values (111,'user','user','user'),(222,'friend','friend','friend');
+insert into users_roles(user_id, role_id) values (111,1),(222,2);
+insert into subscriptions (id, user_id, friend_id) values (1,111,222);
+insert into subscriptions (id, user_id, friend_id) values (2,222,111);
+insert into friendships (id, sender_id, recipient_id) values (1,111,222);
+insert into posts (id, user_id, title, text, image_path) VALUES (1,222,'title','text','resources\3A\00\1A6F4F95E5B9EEAE4B2F626C313C01D3\image.txt');
+
+
+
 

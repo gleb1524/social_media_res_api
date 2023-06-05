@@ -6,7 +6,6 @@ import ru.karaban.social_media_res_api.entity.Subscriptions;
 import ru.karaban.social_media_res_api.entity.User;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface SubscriptionsRepository extends JpaRepository<Subscriptions, Long> {
 
@@ -20,9 +19,10 @@ public interface SubscriptionsRepository extends JpaRepository<Subscriptions, Lo
             nativeQuery = true)
     List<Subscriptions> findAllFriends(Long id);
 
-    @Query(value = "select * from subscriptions sub join " +
-            "subscriptions sub2 ON sub.friend_id = sub2.user_id" +
-            " where sub.user_id = ?1 and sub.friend_id = ?2",
-            nativeQuery = true)
-    void deleteSubscriptionsByFriends(Long myId, Long friendId);
+//    @Query(value = "select * from subscriptions  as sub join " +
+//            "subscriptions as suber2 ON sub.friend_id = suber2.user_id" +
+//            " where sub.user_id = ?1 and sub.friend_id = ?2",
+//            nativeQuery = true)
+    void deleteSubscriptionsByUserIdAndFriendId(Long myId, Long friendId);
+
 }

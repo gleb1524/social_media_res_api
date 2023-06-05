@@ -1,5 +1,6 @@
 package ru.karaban.social_media_res_api.controller;
 
+import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,6 +20,7 @@ public class AuthController {
     private final UserService userService;
     private final JwtTokenUtil jwtTokenUtil;
 
+    @ApiOperation(value = "Authorization and get token.", response = String.class)
     @PostMapping()
     public ResponseEntity<?> createAuthToken(@RequestBody JwtRequest authRequest) {
         UserDetails userDetails = userService.loadUserByUsername(authRequest.getUsername());

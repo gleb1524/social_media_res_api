@@ -1,5 +1,6 @@
 package ru.karaban.social_media_res_api.controller;
 
+import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +20,7 @@ public class SubscriptionsController {
     private final GetUsernameJwtTokenUtil usernameByToken;
     private final SubscriptionsService subscriptionsService;
 
+    @ApiOperation(value = "Subscribe to user by username", response = String.class)
     @PostMapping("/{subscribe_name}")
     public ResponseEntity<?> subscribe(@PathVariable String subscribe_name, HttpServletRequest request) {
 
@@ -27,6 +29,7 @@ public class SubscriptionsController {
         return ResponseEntity.ok(response);
 
     }
+    @ApiOperation(value = "Unsubscribe ", response = String.class)
     @DeleteMapping("/{subscribe_name}")
     public ResponseEntity<?> unsubscribe(@PathVariable String subscribe_name, HttpServletRequest request) {
 
@@ -36,6 +39,7 @@ public class SubscriptionsController {
 
     }
 
+    @ApiOperation(value = "Get all subscribes", response = ResponseFriendship.class)
     @GetMapping()
     @ResponseBody
     public ResponseEntity<?> friendshipResponse(HttpServletRequest request) {

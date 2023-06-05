@@ -1,5 +1,6 @@
 package ru.karaban.social_media_res_api.controller;
 
+import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +18,7 @@ public class FriendshipController {
     private final GetUsernameJwtTokenUtil usernameByToken;
     private final FriendshipService friendshipService;
 
+    @ApiOperation(value = "Solution on request friendship", response = String.class)
     @PutMapping
     public ResponseEntity<?> responseFriendship(HttpServletRequest request, @RequestBody RequestFriendship requestBody) {
 
@@ -25,6 +27,7 @@ public class FriendshipController {
         return ResponseEntity.ok(response);
     }
 
+    @ApiOperation(value = "Get all friendships", response = ResponseFriendship.class)
     @GetMapping
     ResponseEntity<?> findAllFriendshipsByUser(HttpServletRequest request) {
 
@@ -33,6 +36,7 @@ public class FriendshipController {
         return ResponseEntity.ok(response);
     }
 
+    @ApiOperation(value = "Create friendship", response = String.class)
     @PostMapping("/{friendName}")
     ResponseEntity<?> createFriendship(HttpServletRequest request,@PathVariable String friendName) {
 

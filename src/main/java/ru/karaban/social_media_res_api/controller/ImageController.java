@@ -1,5 +1,6 @@
 package ru.karaban.social_media_res_api.controller;
 
+import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
@@ -17,6 +18,7 @@ public class ImageController {
 
     private final ImageService imageService;
 
+    @ApiOperation(value = "Get image by post id", response = Resource.class)
     @GetMapping("/{id}")
     public ResponseEntity<Resource> getImage(@PathVariable Long id) {
 

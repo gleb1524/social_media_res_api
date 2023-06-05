@@ -38,7 +38,7 @@ public class SubscriptionsService {
 
         User user = getUserByUsername(username);
         User friend = getUserByUsername(subscribeName);
-        repository.deleteSubscriptionsByFriends(user.getId(), friend.getId());
+        repository.deleteSubscriptionsByUserIdAndFriendId(user.getId(), friend.getId());
         return String.format(MessageUtils.UNSUBSCRIBE, subscribeName);
     }
 
@@ -52,7 +52,7 @@ public class SubscriptionsService {
                 .map(User::getUsername).collect(Collectors.toList());
         response.setFriendship(subscribers);
         response.setUsername(subscriberName);
-        log.info("Return all friendship " + subscriberName);
+        log.info("Return all subscribes " + subscriberName);
         return response;
     }
 
